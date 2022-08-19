@@ -1,32 +1,26 @@
 const express = require('express');
-const passport = require('passport');
 const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { isNotLoggedIn } = require('./middlewares');
 
 const router = express.Router();
 
-router.post('/login', (req, res, next) => {});
-
-// signup and issue the jwt token
-router.post('/signup', async (req, res, next) => {
-  const { email, fullname, username, password } = req.body;
-  const exUser = await User.findOne({ where: { email } });
-  if (exUser) {
-    // need to fix
-    res.status(300).json({ success: false });
-  } else {
-    try {
-      const hash = await bcrypt.hash(password, 12);
-      await User.create({
-        email,
-        fullname,
-        username,
-        password: hash,
-      });
+router.post('/login', async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ where: { email } });
+  if (!user) {
+    next({
+      message: 'you dont have wrong id or password',
+      statusCode: 403,
+    });
+  }
+  try {
+    const result = await bcrypt.compare(password, user.password);
+    if (result) {
       const token = jwt.sign(
         {
-          id: email,
+          email,
         },
         process.env.JWT_SECRET,
         {
@@ -35,16 +29,55 @@ router.post('/signup', async (req, res, next) => {
         }
       );
       res.status(200).json({ success: true, token });
-    } catch (err) {
-      console.error(err);
-      next(err);
+    } else {
+      next({
+        message: 'you dont have wrong id or password',
+        statusCode: 403,
+      });
     }
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+// signup and issue the jwt token
+router.post('/signup', async (req, res, next) => {
+  const { email, fullname, username, password } = req.body;
+  const exUser = await User.findOne({ where: { email } });
+  if (exUser) {
+    // need to fix
+    res.status(300).json({ success: false });
+  }
+  try {
+    const hash = await bcrypt.hash(password, 12);
+    await User.create({
+      email,
+      fullname,
+      username,
+      password: hash,
+    });
+    const token = jwt.sign(
+      {
+        email,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '30d',
+        issuer: 'instaclone-server',
+      }
+    );
+    res.status(200).json({ success: true, token });
+  } catch (err) {
+    console.error(err);
+    next(err);
   }
 });
 
 // check the token is valid or not
 router.get('/me', async (req, res, next) => {
   let token;
+  console.log(req.headers.authorization);
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -61,10 +94,10 @@ router.get('/me', async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ where: { email: decoded.id } });
+    const user = await User.findOne({ where: { email: decoded.email } });
 
     if (!user) {
-      return next({ message: `no user found for id ${decoded.id}` });
+      return next({ message: `no user found for email ${decoded.email}` });
     }
 
     req.user = user;

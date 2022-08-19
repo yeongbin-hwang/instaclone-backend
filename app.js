@@ -8,6 +8,7 @@ dotenv.config();
 
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
 const { sequelize } = require('./models');
 
 const app = express();
@@ -40,6 +41,7 @@ app.use(cors());
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} no router`);
