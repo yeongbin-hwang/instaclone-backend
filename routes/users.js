@@ -11,7 +11,6 @@ router.get('/', verifyToken, async (req, res, next) => {
   });
   users.filter((user) => user.id !== req.user.id);
 
-  console.log(users);
   res.status(200).json({ success: true, data: users });
 });
 
@@ -19,9 +18,10 @@ router.get('/feed', verifyToken, async (req, res, next) => {
   try {
     const posts = await Post.findAll({
       where: {
-        id: req.user.email,
+        UserId: req.user.id,
       },
     });
+    console.log(posts);
     res.status(200).json({ success: true, data: posts });
   } catch (err) {
     console.error(err);
