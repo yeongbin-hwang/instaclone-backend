@@ -15,8 +15,8 @@ router.post('/', verifyToken, async (req, res, next) => {
   try {
     console.log(req.body);
     const post = await Post.create({
-      content: caption,
-      img: files[0],
+      caption,
+      files: files[0],
       UserId: req.user.id,
     });
     console.log(post);

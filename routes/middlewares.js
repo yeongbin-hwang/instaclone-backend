@@ -10,7 +10,7 @@ exports.verifyToken = async (req, res, next) => {
     token = req.headers.authorization.split(' ')[1];
   } else {
     next({
-      message,
+      message: 'you do not have token',
       statusCode: 403,
     });
   }
@@ -18,6 +18,12 @@ exports.verifyToken = async (req, res, next) => {
     const decoded = await jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({ where: { email: decoded.email } });
 
+    if (user === null) {
+      next({
+        message: 'your token is invalid',
+        statusCode: 403,
+      });
+    }
     req.user = user;
     next();
   } catch (err) {

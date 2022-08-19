@@ -6,9 +6,6 @@ const router = express.Router();
 
 router.get('/', verifyToken, async (req, res, next) => {
   const users = await User.findAll();
-  users.forEach((user) => {
-    user._id = user.id;
-  });
   users.filter((user) => user.id !== req.user.id);
 
   res.status(200).json({ success: true, data: users });
