@@ -9,7 +9,7 @@ module.exports = class Post extends Model {
           allowNull: false,
         },
         files: {
-          type: DataTypes.STRING(200),
+          type: DataTypes.JSON,
           allowNull: true,
         },
       },

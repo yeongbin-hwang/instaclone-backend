@@ -38,7 +38,7 @@ router.get('/feed', verifyToken, async (req, res, next) => {
     const posts = await Post.findAll({
       include: {
         model: User,
-        attributes: ['username', 'avatar'],
+        attributes: ['id', 'username', 'avatar'],
       },
       order: [
         ['createdAt', 'DESC'],
@@ -48,6 +48,10 @@ router.get('/feed', verifyToken, async (req, res, next) => {
     // need to fix, 이름이 User로 들어가서 에러 발생.
     posts.forEach((post) => {
       post.setDataValue('user', post.User);
+      post.setDataValue('files', JSON.parse(post.files));
+      if (post.User.id === req.user.id) {
+        post.setDataValue('isMine', true);
+      }
     });
     res.status(200).json({ success: true, data: posts });
   } catch (err) {
@@ -75,6 +79,48 @@ router.get('/:username', verifyToken, async (req, res, next) => {
     user.setDataValue('isMe', true);
   }
   return res.status(200).json({ success: true, data: user });
+});
+
+router.get('/:id/follow', verifyToken, async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.user.id },
+      exclude: ['password'],
+    });
+    if (user) {
+      await user.addFollowings(parseInt(req.params.id, 10));
+      res.status(200).json({ success: true });
+    } else {
+      res.status(403).json({
+        message: 'my information is deleted',
+        statusCode: 403,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+router.get('/:id/unfollow', verifyToken, async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.user.id },
+      exclude: ['password'],
+    });
+    if (user) {
+      await user.removeFollowings(parseInt(req.params.id, 10));
+      res.status(200).json({ success: true });
+    } else {
+      res.status(403).json({
+        message: 'my information is deleted',
+        statusCode: 403,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
 module.exports = router;
