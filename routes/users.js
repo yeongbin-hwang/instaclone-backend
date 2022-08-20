@@ -66,6 +66,16 @@ router.get('/:username', verifyToken, async (req, res, next) => {
     attributes: {
       exclude: ['password'],
     },
+    include: [
+      {
+        model: User,
+        as: 'Followers',
+      },
+      {
+        model: User,
+        as: 'Followings',
+      },
+    ],
   });
   if (!user) {
     return res.status(403).json({
@@ -73,11 +83,29 @@ router.get('/:username', verifyToken, async (req, res, next) => {
       statusCode: 403,
     });
   }
+
+  const posts = await Post.findAll({
+    where: { UserId: user.id },
+  });
+  posts.forEach((post) => {
+    post.setDataValue('files', JSON.parse(post.files));
+  });
+
   if (req.user.id !== user.id) {
     user.setDataValue('isMe', false);
   } else {
     user.setDataValue('isMe', true);
   }
+  // user에 user.postscount, user.followingcount, user.followercount, user.posts
+  // 우선은 모델이 또 Post로 되어있으니까, setDatavalue로 하고 수정.
+  // follower들도 이름이 달라서 set으로 해야할듯.
+  // profile?.followers.length
+  user.setDataValue('posts', posts);
+  user.setDataValue('postCount', posts.length);
+  user.setDataValue('followings', user.Followings);
+  user.setDataValue('followingCount', user.Followings.length);
+  user.setDataValue('followers', user.Followers);
+  user.setDataValue('followersCount', user.Followers.length);
   return res.status(200).json({ success: true, data: user });
 });
 
