@@ -5,8 +5,23 @@ const { verifyToken } = require('./middlewares');
 const router = express.Router();
 
 router.get('/', verifyToken, async (req, res, next) => {
+  const myUser = await User.findOne({
+    where: { id: req.user.id },
+    include: {
+      model: User,
+      attributes: ['id'],
+      as: 'Followings',
+    },
+  });
   let users = await User.findAll();
   users = users.filter((user) => user.id !== req.user.id);
+  users.forEach((user) => {
+    myUser.Followings.forEach((following) => {
+      if (following.id === user.id) {
+        user.setDataValue('isFollowing', true);
+      }
+    });
+  });
 
   res.status(200).json({ success: true, data: users });
 });
@@ -63,6 +78,7 @@ router.get('/feed', verifyToken, async (req, res, next) => {
           post.setDataValue('isLiked', true);
         }
       });
+      post.setDataValue('likesCount', post.LikeUsers.length);
     });
     res.status(200).json({ success: true, data: posts });
   } catch (err) {

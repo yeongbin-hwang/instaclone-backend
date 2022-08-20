@@ -68,14 +68,27 @@ router.post('/', verifyToken, async (req, res, next) => {
 router.get('/:id', verifyToken, async (req, res, next) => {
   const post = await Post.findOne({
     where: { id: req.params.id },
-    include: {
-      model: User,
-      attributes: ['id', 'username', 'avatar'],
-    },
+    include: [
+      {
+        model: User,
+        attributes: ['id', 'username', 'avatar'],
+      },
+      {
+        model: User,
+        attributes: ['id'],
+        as: 'LikeUsers',
+      },
+    ],
   });
   post.setDataValue('files', JSON.parse(post.files));
   post.setDataValue('user', post.User);
   post.setDataValue('comments', []);
+  post.LikeUsers.forEach((user) => {
+    if (user.id === req.user.id) {
+      post.setDataValue('isLiked', true);
+    }
+  });
+  post.setDataValue('likesCount', post.LikeUsers.length);
 
   res.status(200).json({ success: true, data: post });
 });
