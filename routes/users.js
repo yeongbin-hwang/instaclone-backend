@@ -36,22 +36,33 @@ router.put('/', verifyToken, async (req, res, next) => {
 router.get('/feed', verifyToken, async (req, res, next) => {
   try {
     const posts = await Post.findAll({
-      include: {
-        model: User,
-        attributes: ['id', 'username', 'avatar'],
-      },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'username', 'avatar'],
+        },
+        {
+          model: User,
+          attributes: ['id'],
+          as: 'LikeUsers',
+        },
+      ],
       order: [
         ['createdAt', 'DESC'],
         ['updatedAt', 'DESC'],
       ],
     });
-    // need to fix, 이름이 User로 들어가서 에러 발생.
     posts.forEach((post) => {
       post.setDataValue('user', post.User);
       post.setDataValue('files', JSON.parse(post.files));
       if (post.User.id === req.user.id) {
         post.setDataValue('isMine', true);
       }
+      post.LikeUsers.forEach((user) => {
+        if (user.id === req.user.id) {
+          post.setDataValue('isLiked', true);
+        }
+      });
     });
     res.status(200).json({ success: true, data: posts });
   } catch (err) {

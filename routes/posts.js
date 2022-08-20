@@ -6,10 +6,17 @@ const router = express.Router();
 
 router.get('/', verifyToken, async (req, res, next) => {
   const posts = await Post.findAll({
-    include: {
-      model: User,
-      attributes: ['id', 'username', 'avatar'],
-    },
+    include: [
+      {
+        model: User,
+        attributes: ['id', 'username', 'avatar'],
+      },
+      {
+        model: User,
+        attributes: ['id'],
+        as: 'LikeUsers',
+      },
+    ],
     order: [
       ['createdAt', 'DESC'],
       ['updatedAt', 'DESC'],
@@ -21,6 +28,11 @@ router.get('/', verifyToken, async (req, res, next) => {
     if (post.User.id === req.user.id) {
       post.setDataValue('isMine', true);
     }
+    post.LikeUsers.forEach((user) => {
+      if (user.id === req.user.id) {
+        post.setDataValue('isLiked', true);
+      }
+    });
   });
 
   res.status(200).json({ success: true, data: posts });
@@ -83,6 +95,30 @@ router.delete('/:id', verifyToken, async (req, res, next) => {
     }
 
     Post.destroy({ where: { id: req.params.id } });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+router.get('/:id/toggleLike', verifyToken, async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.user.id },
+      include: {
+        model: Post,
+        attributes: ['id'],
+        as: 'LikePosts',
+      },
+    });
+    let detect = false;
+    user.LikePosts.forEach((post) => {
+      if (post.id === parseInt(req.params.id, 10)) {
+        detect = true;
+      }
+    });
+    if (detect) await user.removeLikePost(parseInt(req.params.id, 10));
+    else await user.addLikePost(parseInt(req.params.id, 10));
   } catch (err) {
     console.error(err);
     next(err);
