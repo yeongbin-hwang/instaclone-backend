@@ -27,6 +27,14 @@ module.exports = class User extends Model {
           defaultValue:
             'https://res.cloudinary.com/dz5alijky/image/upload/v1660927636/default-user-icon-13_hpland.png',
         },
+        website: {
+          type: DataTypes.STRING(200),
+          allowNull: true,
+        },
+        bio: {
+          type: DataTypes.STRING(200),
+          allowNull: true,
+        },
         provider: {
           type: DataTypes.STRING(10),
           allowNull: false,

@@ -10,10 +10,7 @@ router.post('/login', async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ where: { email } });
   if (!user) {
-    next({
-      message: 'you dont have wrong id or password',
-      statusCode: 403,
-    });
+    res.status(403).json({ message: 'wrong id or password' });
   }
   try {
     const result = await bcrypt.compare(password, user.password);
@@ -46,8 +43,7 @@ router.post('/signup', async (req, res, next) => {
   const { email, fullname, username, password } = req.body;
   const exUser = await User.findOne({ where: { email } });
   if (exUser) {
-    // need to fix
-    res.status(300).json({ success: false });
+    res.status(403).json({ message: 'email already exists' });
   }
   try {
     const hash = await bcrypt.hash(password, 12);
@@ -101,13 +97,14 @@ router.get('/me', async (req, res, next) => {
     }
 
     req.user = user;
-    const { username, fullname, email } = user;
+    const { username, fullname, email, avatar } = user;
     res.status(200).json({
       success: true,
       data: {
         username,
         fullname,
         email,
+        avatar,
       },
     });
   } catch (err) {
