@@ -34,5 +34,6 @@ module.exports = class Post extends Model {
       through: 'LikePost',
     });
     db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' });
+    db.Post.hasMany(db.Comment);
   }
 };
