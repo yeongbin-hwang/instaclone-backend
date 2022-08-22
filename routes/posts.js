@@ -1,6 +1,6 @@
 const express = require('express');
 const { verifyToken } = require('./middlewares');
-const { User, Post } = require('../models');
+const { User, Post, Hashtag, Comment } = require('../models');
 
 const router = express.Router();
 
@@ -16,6 +16,18 @@ router.get('/', verifyToken, async (req, res, next) => {
         attributes: ['id'],
         as: 'LikeUsers',
       },
+      {
+        model: Comment,
+        attributes: ['id', 'text'],
+        include: {
+          model: User,
+          attributes: ['id', 'avatar', 'username'],
+        },
+        order: [
+          ['createdAt', 'DESC'],
+          ['updatedAt', 'DESC'],
+        ],
+      },
     ],
     order: [
       ['createdAt', 'DESC'],
@@ -24,6 +36,15 @@ router.get('/', verifyToken, async (req, res, next) => {
   });
   posts.forEach((post) => {
     post.setDataValue('user', post.User);
+    post.setDataValue('comments', post.Comments);
+    if (post.Comments) {
+      post.setDataValue('commentsCount', post.Comments.length);
+      post.getDataValue('comments').forEach((comment) => {
+        comment.setDataValue('user', comment.User);
+      });
+    } else {
+      post.setDataValue('commentsCount', 0);
+    }
     post.setDataValue('files', JSON.parse(post.files));
     if (post.User.id === req.user.id) {
       post.setDataValue('isMine', true);
@@ -47,6 +68,18 @@ router.post('/', verifyToken, async (req, res, next) => {
       files: JSON.stringify(files),
       UserId: req.user.id,
     });
+
+    if (tags) {
+      const result = await Promise.all(
+        tags.map((tag) => {
+          return Hashtag.findOrCreate({
+            where: { title: tag.slice(1) },
+          });
+        })
+      );
+      await post.addHashtags(result.map((r) => r[0]));
+    }
+
     post = await Post.findOne({
       where: { id: post.id },
       include: {
@@ -57,6 +90,9 @@ router.post('/', verifyToken, async (req, res, next) => {
     post.setDataValue('files', JSON.parse(post.files));
     post.setDataValue('user', post.User);
     post.setDataValue('isMine', true);
+    post.setDataValue('likesCount', 0);
+    post.setDataValue('comments', []);
+    post.setDataValue('commentsCount', 0);
     console.log(post);
     res.status(200).json({ success: true, data: post });
   } catch (err) {
@@ -78,11 +114,31 @@ router.get('/:id', verifyToken, async (req, res, next) => {
         attributes: ['id'],
         as: 'LikeUsers',
       },
+      {
+        model: Comment,
+        attributes: ['id', 'text'],
+        include: {
+          model: User,
+          attributes: ['id', 'avatar', 'username'],
+        },
+        order: [
+          ['createdAt', 'DESC'],
+          ['updatedAt', 'DESC'],
+        ],
+      },
     ],
   });
   post.setDataValue('files', JSON.parse(post.files));
   post.setDataValue('user', post.User);
-  post.setDataValue('comments', []);
+  post.setDataValue('comments', post.Comments);
+  if (post.Comments) {
+    post.setDataValue('commentsCount', post.Comments.length);
+    post.getDataValue('comments').forEach((comment) => {
+      comment.setDataValue('user', comment.User);
+    });
+  } else {
+    post.setDataValue('commentsCount', 0);
+  }
   post.LikeUsers.forEach((user) => {
     if (user.id === req.user.id) {
       post.setDataValue('isLiked', true);
@@ -132,6 +188,27 @@ router.get('/:id/toggleLike', verifyToken, async (req, res, next) => {
     });
     if (detect) await user.removeLikePost(parseInt(req.params.id, 10));
     else await user.addLikePost(parseInt(req.params.id, 10));
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+router.post('/:id/comments', verifyToken, async (req, res, next) => {
+  const { text } = req.body;
+  try {
+    const comment = await Comment.create({
+      text,
+      UserId: req.user.id,
+      PostId: req.params.id,
+    });
+
+    const user = {};
+    user.avatar = req.user.avatar;
+    user.username = req.user.username;
+    comment.setDataValue('user', user);
+
+    res.status(200).json({ success: true, data: comment });
   } catch (err) {
     console.error(err);
     next(err);

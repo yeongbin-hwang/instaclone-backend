@@ -1,5 +1,5 @@
 const express = require('express');
-const { Post, User } = require('../models');
+const { Post, User, Comment } = require('../models');
 const { verifyToken } = require('./middlewares');
 
 const router = express.Router();
@@ -61,6 +61,18 @@ router.get('/feed', verifyToken, async (req, res, next) => {
           attributes: ['id'],
           as: 'LikeUsers',
         },
+        {
+          model: Comment,
+          attributes: ['id', 'text'],
+          include: {
+            model: User,
+            attributes: ['id', 'avatar', 'username'],
+          },
+          order: [
+            ['createdAt', 'DESC'],
+            ['updatedAt', 'DESC'],
+          ],
+        },
       ],
       order: [
         ['createdAt', 'DESC'],
@@ -72,6 +84,15 @@ router.get('/feed', verifyToken, async (req, res, next) => {
       post.setDataValue('files', JSON.parse(post.files));
       if (post.User.id === req.user.id) {
         post.setDataValue('isMine', true);
+      }
+      post.setDataValue('comments', post.Comments);
+      if (post.Comments) {
+        post.setDataValue('commentsCount', post.Comments.length);
+        post.getDataValue('comments').forEach((comment) => {
+          comment.setDataValue('user', comment.User);
+        });
+      } else {
+        post.setDataValue('commentsCount', 0);
       }
       post.LikeUsers.forEach((user) => {
         if (user.id === req.user.id) {
