@@ -33,6 +33,11 @@ module.exports = class Post extends Model {
       as: 'LikeUsers', //as: alias
       through: 'LikePost',
     });
+    db.Post.belongsToMany(db.User, {
+      foreignKey: 'SavePostId',
+      as: 'SaveUsers', //as: alias
+      through: 'SavePost',
+    });
     db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' });
     db.Post.hasMany(db.Comment);
   }

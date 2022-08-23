@@ -130,6 +130,9 @@ router.get('/:id', verifyToken, async (req, res, next) => {
   });
   post.setDataValue('files', JSON.parse(post.files));
   post.setDataValue('user', post.User);
+  if (post.User.id === req.user.id) {
+    post.setDataValue('isMine', true);
+  }
   post.setDataValue('comments', post.Comments);
   if (post.Comments) {
     post.setDataValue('commentsCount', post.Comments.length);
@@ -147,6 +150,15 @@ router.get('/:id', verifyToken, async (req, res, next) => {
   post.setDataValue('likesCount', post.LikeUsers.length);
 
   res.status(200).json({ success: true, data: post });
+});
+
+// modify
+router.post('/:id', verifyToken, async (req, res, next) => {
+  try {
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
 router.delete('/:id', verifyToken, async (req, res, next) => {
@@ -188,6 +200,30 @@ router.get('/:id/toggleLike', verifyToken, async (req, res, next) => {
     });
     if (detect) await user.removeLikePost(parseInt(req.params.id, 10));
     else await user.addLikePost(parseInt(req.params.id, 10));
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+router.get('/:id/toggleSave', verifyToken, async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.user.id },
+      include: {
+        model: Post,
+        attributes: ['id'],
+        as: 'SavePosts',
+      },
+    });
+    let detect = false;
+    user.SavePosts.forEach((post) => {
+      if (post.id === parseInt(req.params.id, 10)) {
+        detect = true;
+      }
+    });
+    if (detect) await user.removeSavePost(parseInt(req.params.id, 10));
+    else await user.addSavePost(parseInt(req.params.id, 10));
   } catch (err) {
     console.error(err);
     next(err);

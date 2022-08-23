@@ -21,7 +21,7 @@ router.post('/login', async (req, res, next) => {
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: '30d',
+          expiresIn: '1d',
           issuer: 'instaclone-server',
         }
       );

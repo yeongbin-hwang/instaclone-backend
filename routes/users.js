@@ -62,6 +62,11 @@ router.get('/feed', verifyToken, async (req, res, next) => {
           as: 'LikeUsers',
         },
         {
+          model: User,
+          attributes: ['id'],
+          as: 'SaveUsers',
+        },
+        {
           model: Comment,
           attributes: ['id', 'text'],
           include: {
@@ -100,6 +105,12 @@ router.get('/feed', verifyToken, async (req, res, next) => {
         }
       });
       post.setDataValue('likesCount', post.LikeUsers.length);
+
+      post.SaveUsers.forEach((user) => {
+        if (user.id === req.user.id) {
+          post.setDataValue('isSaved', true);
+        }
+      });
     });
     res.status(200).json({ success: true, data: posts });
   } catch (err) {
@@ -123,6 +134,11 @@ router.get('/:username', verifyToken, async (req, res, next) => {
         model: User,
         as: 'Followings',
       },
+      {
+        model: Post,
+        attributes: ['id'],
+        as: 'SavePosts',
+      },
     ],
   });
   if (!user) {
@@ -131,6 +147,13 @@ router.get('/:username', verifyToken, async (req, res, next) => {
       statusCode: 403,
     });
   }
+
+  const savedPosts = await Post.findAll({
+    where: { id: user.SavePosts.map((f) => f.id) },
+  });
+  savedPosts.forEach((post) => {
+    post.setDataValue('files', JSON.parse(post.files));
+  });
 
   const posts = await Post.findAll({
     where: { UserId: user.id },
@@ -148,12 +171,26 @@ router.get('/:username', verifyToken, async (req, res, next) => {
   // 우선은 모델이 또 Post로 되어있으니까, setDatavalue로 하고 수정.
   // follower들도 이름이 달라서 set으로 해야할듯.
   // profile?.followers.length
+  user.setDataValue('savedPosts', savedPosts);
   user.setDataValue('posts', posts);
   user.setDataValue('postCount', posts.length);
-  user.setDataValue('followings', user.Followings);
+  user.setDataValue('following', user.Followings);
+  user.getDataValue('following').forEach((following) => {
+    if (req.user.Followings.map((f) => f.id).includes(following.id)) {
+      following.setDataValue('isFollowing', true);
+    }
+  });
   user.setDataValue('followingCount', user.Followings.length);
   user.setDataValue('followers', user.Followers);
   user.setDataValue('followersCount', user.Followers.length);
+  user.getDataValue('followers').forEach((follower) => {
+    if (req.user.Followings.map((f) => f.id).includes(follower.id)) {
+      follower.setDataValue('isFollowing', true);
+    }
+    if (follower.username === req.user.username) {
+      user.setDataValue('isFollowing', true);
+    }
+  });
   return res.status(200).json({ success: true, data: user });
 });
 

@@ -65,6 +65,11 @@ module.exports = class User extends Model {
       as: 'LikePosts', //as: alias
       through: 'LikePost',
     });
+    db.User.belongsToMany(db.Post, {
+      foreignKey: 'SaveUserId',
+      as: 'SavePosts', //as: alias
+      through: 'SavePost',
+    });
     db.User.hasMany(db.Comment);
     db.User.belongsToMany(db.User, {
       foreignKey: 'followingId',
