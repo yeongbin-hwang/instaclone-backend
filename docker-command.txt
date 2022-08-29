@@ -1,0 +1,5 @@
+# backend
+docker run -d --name insta-backend -p 8000:8000 --env-file ./.env  --rm -v C:\Users\USER\instaclone-backend:/app -v /app/node_modules insta-node
+
+# mysql
+docker run --name mysqldb -e MYSQL_ROOT_PASSWORD=dudqls15!! -p 3306:3306 -d --rm mysql:8.0.30

@@ -1,10 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const session = require('express-session');
-const dotenv = require('dotenv');
 const cors = require('cors');
-
-dotenv.config();
 
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
