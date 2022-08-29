@@ -2,10 +2,10 @@
   "name": "instaclone-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app"
+    "start": "nodemon -L app"
   },
   "author": "",
   "license": "MIT",
@@ -25,6 +25,7 @@
     "sequelize-cli": "^6.4.1"
   },
   "devDependencies": {
+    "jest": "^29.0.0",
     "nodemon": "^2.0.19"
   }
 }
