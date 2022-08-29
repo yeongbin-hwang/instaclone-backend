@@ -18,9 +18,20 @@ services:
       - ./env/mysql.env
     volumes:
       - data:/var/lib/mysql
-    ports:
-      - '3306:3306'
     container_name: mysqldb
+  frontend:
+    build: ./frontend
+    env_file:
+      - ./env/frontend.env
+    volumes:
+      - ./frontend/src:/app/src
+    ports:
+      - '3000:3000'
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+    container_name: insta-frontend
 
 volumes:
   data:
