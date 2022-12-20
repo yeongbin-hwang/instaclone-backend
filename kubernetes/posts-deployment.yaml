@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: posts-deployment
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: posts
+  template:
+    metadata:
+      labels:
+        app: posts
+    spec:
+      containers:
+        - name: posts
+          image: yeongbin/insta-posts-api:latest
+          env:
+            - name: MYSQL_URL
+              value: "db-service.default"
+            - name: COOKIE_SECRET
+              valueFrom:
+                secretKeyRef: 
+                  name: user-cookie
+                  key: cookie
+                  optional: False
+            - name: MYSQL_PASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  name: db-user-pass
+                  key: password
+                  optional: False
