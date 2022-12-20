@@ -44,11 +44,15 @@ services:
       - data:/var/lib/mysql
     container_name: mysqldb
   frontend:
-    image: yeongbin/insta-frontend
+    image: ./frontend
     env_file:
       - ./env/frontend.env
+    volumes:
+      - ./frontend/src:/app/src
     ports:
       - '80:80'
+    stdin_open: true
+    tty: true
     depends_on:
       - users-api
       - auth-api

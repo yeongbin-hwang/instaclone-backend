@@ -52,11 +52,8 @@ export const client = (endpoint, { body, ...customConfig } = {}) => {
   }
 
   if (endpoint.includes("users")) {
-    console.log(`${process.env.REACT_APP_USERS_API_URL}${endpoint}`);
-    return fetch(
-      `${process.env.REACT_APP_USERS_API_URL}${endpoint}`,
-      config
-    ).then(async (res) => {
+    console.log(`${endpoint}`);
+    return fetch(`${endpoint}`, config).then(async (res) => {
       const data = await res.json();
       if (res.ok) {
         return data;
@@ -65,11 +62,8 @@ export const client = (endpoint, { body, ...customConfig } = {}) => {
       }
     });
   } else if (endpoint.includes("auth")) {
-    console.log(`${process.env.REACT_APP_AUTH_API_URL}${endpoint}`);
-    return fetch(
-      `${process.env.REACT_APP_AUTH_API_URL}${endpoint}`,
-      config
-    ).then(async (res) => {
+    console.log(`${endpoint}`);
+    return fetch(`${endpoint}`, config).then(async (res) => {
       const data = await res.json();
       if (res.ok) {
         return data;
@@ -78,11 +72,8 @@ export const client = (endpoint, { body, ...customConfig } = {}) => {
       }
     });
   } else if (endpoint.includes("posts")) {
-    console.log(`${process.env.REACT_APP_POSTS_API_URL}${endpoint}`);
-    return fetch(
-      `${process.env.REACT_APP_POSTS_API_URL}${endpoint}`,
-      config
-    ).then(async (res) => {
+    console.log(`${endpoint}`);
+    return fetch(`${endpoint}`, config).then(async (res) => {
       const data = await res.json();
       if (res.ok) {
         return data;
