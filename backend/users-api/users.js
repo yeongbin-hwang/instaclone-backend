@@ -1,13 +1,14 @@
-const express = require('express');
-const session = require('express-session');
-const cors = require('cors');
+const express = require("express");
+const session = require("express-session");
+const cors = require("cors");
+const morgan = require("morgan");
 
-const { verifyToken } = require('./middlewares');
-const { sequelize } = require('./models');
+const { verifyToken } = require("./middlewares");
+const { sequelize } = require("./models");
 sequelize
   .sync({ force: false })
   .then(() => {
-    console.log('database connected in users-api');
+    console.log("database connected in users-api");
   })
   .catch((err) => {
     console.error(err);
@@ -20,11 +21,12 @@ const {
   getProfile,
   addFollowing,
   removeFollowing,
-} = require('./controller/users');
+} = require("./controller/users");
 
 const router = express();
 
-router.set('port', process.env.PORT || 8000);
+router.set("port", process.env.PORT || 8000);
+router.use(morgan("dev"));
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 router.use(
@@ -42,14 +44,14 @@ router.use(cors());
 
 router.use(verifyToken);
 
-router.get('/users/', getSuggestionFollowing);
-router.put('/users/', updateProfile);
+router.get("/users/", getSuggestionFollowing);
+router.put("/users/", updateProfile);
 
-router.get('/users/feed', getFeeds);
-router.get('/users/:username', getProfile);
+router.get("/users/feed", getFeeds);
+router.get("/users/:username", getProfile);
 
-router.get('/users/:id/follow', addFollowing);
-router.get('/users/:id/unfollow', removeFollowing);
+router.get("/users/:id/follow", addFollowing);
+router.get("/users/:id/unfollow", removeFollowing);
 
 router.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} no router`);
@@ -63,6 +65,6 @@ router.use((err, req, res, next) => {
   res.json(err);
 });
 
-router.listen(router.get('port'), () => {
-  console.log('listening on', router.get('port'));
+router.listen(router.get("port"), () => {
+  console.log("listening on", router.get("port"));
 });
