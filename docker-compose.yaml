@@ -1,17 +1,41 @@
 version: '3.8'
 services:
-  backend:
-    build: ./backend
+  users-api:
+    build: ./backend/users-api
     env_file:
-      - ./env/backend.env
+      - ./env/users-api.env
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - ./backend/users-api:/app
+      - ./app/node_modules
     depends_on:
       - mysql
     ports:
       - '8000:8000'
-    container_name: insta-backend
+    container_name: users-api
+  auth-api:
+    build: ./backend/auth-api
+    env_file:
+      - ./env/auth-api.env
+    volumes:
+      - ./backend/auth-api:/app
+      - ./app/node_modules
+    depends_on:
+      - mysql
+    ports:
+      - '8001:8001'
+    container_name: auth-api
+  posts-api:
+    build: ./backend/posts-api
+    env_file:
+      - ./env/posts-api.env
+    volumes:
+      - ./backend/posts-api:/app
+      - ./app/node_modules
+    depends_on:
+      - mysql
+    ports:
+      - '8002:8002'
+    container_name: posts-api
   mysql:
     image: 'mysql:8.0.30'
     env_file:
@@ -30,7 +54,9 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - backend
+      - users-api
+      - auth-api
+      - posts-api
     container_name: insta-frontend
 
 volumes:

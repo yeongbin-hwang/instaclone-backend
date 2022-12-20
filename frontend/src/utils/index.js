@@ -51,17 +51,56 @@ export const client = (endpoint, { body, ...customConfig } = {}) => {
     config.body = JSON.stringify(body);
   }
 
-  console.log(`${process.env.REACT_APP_BACKEND_URL}${endpoint}`);
-  return fetch(`${process.env.REACT_APP_BACKEND_URL}${endpoint}`, config).then(
-    async (res) => {
+  if (endpoint.includes("users")) {
+    console.log(`${process.env.REACT_APP_USERS_API_URL}${endpoint}`);
+    return fetch(
+      `${process.env.REACT_APP_USERS_API_URL}${endpoint}`,
+      config
+    ).then(async (res) => {
       const data = await res.json();
       if (res.ok) {
         return data;
       } else {
         return Promise.reject(data);
       }
-    }
-  );
+    });
+  } else if (endpoint.includes("auth")) {
+    console.log(`${process.env.REACT_APP_AUTH_API_URL}${endpoint}`);
+    return fetch(
+      `${process.env.REACT_APP_AUTH_API_URL}${endpoint}`,
+      config
+    ).then(async (res) => {
+      const data = await res.json();
+      if (res.ok) {
+        return data;
+      } else {
+        return Promise.reject(data);
+      }
+    });
+  } else if (endpoint.includes("posts")) {
+    console.log(`${process.env.REACT_APP_POSTS_API_URL}${endpoint}`);
+    return fetch(
+      `${process.env.REACT_APP_POSTS_API_URL}${endpoint}`,
+      config
+    ).then(async (res) => {
+      const data = await res.json();
+      if (res.ok) {
+        return data;
+      } else {
+        return Promise.reject(data);
+      }
+    });
+  }
+  // return fetch(`${process.env.REACT_APP_BACKEND_URL}${endpoint}`, config).then(
+  //   async (res) => {
+  //     const data = await res.json();
+  //     if (res.ok) {
+  //       return data;
+  //     } else {
+  //       return Promise.reject(data);
+  //     }
+  //   }
+  // );
 };
 
 export const uploadImage = (file) => {
