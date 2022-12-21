@@ -4,7 +4,19 @@ on:
     branches:
       - 'main'
 jobs:
-  docker:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        working-directory: ./backend/posts-api/
+        run: npm i
+      - name: Test code
+        working-directory: ./backend/posts-api/
+        run: npm test
+  build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -17,20 +29,6 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Build and push (users-api)
-        uses: docker/build-push-action@v3
-        with:
-          context: ./backend/users-api/
-          file: ./backend/users-api/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-users-api:latest
-      - name: Build and push (auth-api)
-        uses: docker/build-push-action@v3
-        with:
-          context: ./backend/auth-api/
-          file: ./backend/auth-api/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-auth-api:latest
-      - name: Build and push (posts-api)
         uses: docker/build-push-action@v3
         with:
           context: ./backend/posts-api/
