@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  posts-api:
+    build: .
+    env_file:
+      - ./env/posts-api.env
+    volumes:
+      - .:/app
+      - ./app/node_modules
+    depends_on:
+      - mysql
+    ports:
+      - '8002:8002'
+    container_name: posts-api
+  mysql:
+    image: 'mysql:8.0.30'
+    env_file:
+      - ./env/mysql.env
+    volumes:
+      - data:/var/lib/mysql
+    container_name: mysqldb
+volumes:
+  data:
