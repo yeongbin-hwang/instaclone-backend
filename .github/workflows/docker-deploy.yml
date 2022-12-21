@@ -6,9 +6,9 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./backend
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Docker hub
@@ -19,21 +19,21 @@ jobs:
       - name: Build and push (users-api)
         uses: docker/build-push-action@v3
         with:
-          context: ${{ env.working-directory }}/users-api/
-          file: ${{ env.working-directory }}/users-api/Dockerfile
+          context: ./backend/users-api/
+          file: ./backend/users-api/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-users-api:latest
       - name: Build and push (auth-api)
         uses: docker/build-push-action@v3
         with:
-          context: ${{ env.working-directory }}/auth-api/
-          file: ${{ env.working-directory }}/auth-api/Dockerfile
+          context: ./backend/auth-api/
+          file: ./backend/auth-api/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-auth-api:latest
       - name: Build and push (posts-api)
         uses: docker/build-push-action@v3
         with:
-          context: ${{ env.working-directory }}/posts-api/
-          file: ${{ env.working-directory }}/posts-api/Dockerfile
+          context: ./backend/posts-api/
+          file: ./backend/posts-api/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-posts-api:latest
