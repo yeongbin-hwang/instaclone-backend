@@ -20,10 +20,9 @@ spec:
               value: "database_development"
             - name: MYSQL_ROOT_PASSWORD
               valueFrom: 
-                secretKeyRef:
+                configMapKeyRef:
                   name: db-user-pass
                   key: password
-                  optional: False
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: db-volume

@@ -20,19 +20,16 @@ spec:
               value: "db-service.default"
             - name: JWT_SECRET
               valueFrom:
-                secretKeyRef: 
+                configMapKeyRef: 
                   name: user-jwt
                   key: jwt
-                  optional: False
             - name: COOKIE_SECRET
               valueFrom:
-                secretKeyRef: 
+                configMapKeyRef: 
                   name: user-cookie
                   key: cookie
-                  optional: False
             - name: MYSQL_PASSWORD
               valueFrom: 
-                secretKeyRef:
+                configMapKeyRef:
                   name: db-user-pass
                   key: password
-                  optional: False

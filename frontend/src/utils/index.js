@@ -82,16 +82,6 @@ export const client = (endpoint, { body, ...customConfig } = {}) => {
       }
     });
   }
-  // return fetch(`${process.env.REACT_APP_BACKEND_URL}${endpoint}`, config).then(
-  //   async (res) => {
-  //     const data = await res.json();
-  //     if (res.ok) {
-  //       return data;
-  //     } else {
-  //       return Promise.reject(data);
-  //     }
-  //   }
-  // );
 };
 
 export const uploadImage = (file) => {
@@ -99,8 +89,7 @@ export const uploadImage = (file) => {
   data.append("file", file);
   data.append("upload_preset", "ckgj8jch");
 
-  console.log(`${process.env.REACT_APP_CLOUDINARY_URL}`);
-  return fetch(process.env.REACT_APP_CLOUDINARY_URL, {
+  return fetch("/upload", {
     method: "POST",
     body: data,
   }).then((res) => res.json());
