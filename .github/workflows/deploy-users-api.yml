@@ -1,8 +1,11 @@
-name: Docker Deploy
+name: Users-api test and build
 on: 
   push:
     branches:
       - 'main'
+    paths:
+      - './backend/users-api/*'
+  workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
