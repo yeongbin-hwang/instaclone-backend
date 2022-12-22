@@ -5,10 +5,13 @@ on:
       - 'main'
     paths:
       - './backend/posts-api/*'
+      - '.github/workflows/*'
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container:
+      image: node:14-alpine
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
