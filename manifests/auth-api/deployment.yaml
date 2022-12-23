@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: yeongbin/insta-auth-api:latest
+          env:
+            - name: MYSQL_URL
+              value: "db-service.default"
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef: 
+                  name: user-jwt
+                  key: jwt
+            - name: COOKIE_SECRET
+              valueFrom:
+                configMapKeyRef: 
+                  name: user-cookie
+                  key: cookie
+            - name: MYSQL_PASSWORD
+              valueFrom: 
+                configMapKeyRef:
+                  name: db-user-pass
+                  key: password
