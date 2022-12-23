@@ -6,5 +6,5 @@ resources:
 
 images:
 - name: yeongbin/insta-users-api
-  newTag: 688e2fe
+  newTag: ec0bdd4
 kind: Kustomization
