@@ -1,10 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: posts-service
+spec:
+  ports:
+  - port: 8002
+    protocol: TCP
+    targetPort: 8002
+  selector:
+    app: posts
+  type: ClusterIP
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: posts-deployment
 spec:
   replicas: 1
-  selector: 
+  selector:
     matchLabels:
       app: posts
   template:
@@ -13,23 +26,23 @@ spec:
         app: posts
     spec:
       containers:
-        - name: posts
-          image: yeongbin/insta-posts-api:latest
-          env:
-            - name: MYSQL_URL
-              value: "db-service.default"
-            - name: JWT_SECRET
-              valueFrom:
-                configMapKeyRef: 
-                  name: user-jwt
-                  key: jwt
-            - name: COOKIE_SECRET
-              valueFrom:
-                configMapKeyRef: 
-                  name: user-cookie
-                  key: cookie
-            - name: MYSQL_PASSWORD
-              valueFrom: 
-                configMapKeyRef:
-                  name: db-user-pass
-                  key: password
+      - env:
+        - name: MYSQL_URL
+          value: db-service.default
+        - name: JWT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              key: jwt
+              name: user-jwt
+        - name: COOKIE_SECRET
+          valueFrom:
+            configMapKeyRef:
+              key: cookie
+              name: user-cookie
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: password
+              name: db-user-pass
+        image: yeongbin/insta-posts-api:20ea1d0
+        name: posts
