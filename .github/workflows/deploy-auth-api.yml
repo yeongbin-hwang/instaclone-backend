@@ -39,7 +39,7 @@ jobs:
         id: vars
         run: |
           echo "sha_short=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
-      - name: Build and push (users-api)
+      - name: Build and push (auth-api)
         uses: docker/build-push-action@v3
         with:
           context: ./backend/auth-api/

@@ -23,6 +23,8 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      sha_short: ${{ steps.vars.outputs.sha_short }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -33,10 +35,44 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Build and push (users-api)
+      - name: Set short git commit SHA
+        id: vars
+        run: |
+          echo "sha_short=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
+      - name: Build and push (posts-api)
         uses: docker/build-push-action@v3
         with:
           context: ./backend/posts-api/
           file: ./backend/posts-api/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-posts-api:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-posts-api:${{ steps.vars.outputs.sha_short }}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: "3.6.1"
+      - name: Kubernetes resources update
+        run: |
+          cd manifests/posts-api
+          kustomize edit set image ${{ secrets.DOCKER_HUB_USERNAME }}/insta-posts-api:${{ needs.build.outputs.sha_short }}
+          kustomize build . -o ../../k8s/posts-api/deployment.yaml
+          echo "origin kustomization.yaml "
+          cat kustomization.yaml 
+          echo "updated deployment.yaml "
+          cat ../../k8s/posts-api/deployment.yaml
+      - name: Commit files
+        run: |
+          git config --local user.email "kyh3565800@kaist.ac.kr"
+          git config --local user.name "yeongbin-hwang"
+          git commit -am "docker image build and update k8s resources - ${{ needs.build.outputs.sha_short }}"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        env:
+          github_token: ${{ secrets.TOKEN_GITHUB }}
+          branch: ${{ github.ref }}
