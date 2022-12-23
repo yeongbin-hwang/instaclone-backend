@@ -6,5 +6,5 @@ resources:
 
 images:
 - name: yeongbin/insta-auth-api
-  newTag: e323f9
+  newTag: e140922
 kind: Kustomization
