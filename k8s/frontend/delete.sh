@@ -1,4 +1,4 @@
 echo '[FRONTEND DELETE] nginx delete'
 
-kubectl delete -f frontend-service.yaml
-kubectl delete -f frontend-deployment.yaml
+kubectl delete -f service.yaml
+kubectl delete -f deployment.yaml

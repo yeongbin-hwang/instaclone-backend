@@ -1,4 +1,4 @@
 echo '[BACKEND POSTS-API DEPLOY START] posts-api'
 
-kubectl apply -f posts-service.yaml
-kubectl apply -f posts-deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f deployment.yaml

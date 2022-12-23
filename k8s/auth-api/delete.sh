@@ -1,4 +1,4 @@
 echo '[BACKEND AUTH-API DELETE] auth-api'
 
-kubectl delete -f auth-service.yaml
-kubectl delete -f auth-deployment.yaml
+kubectl delete -f service.yaml
+kubectl delete -f deployment.yaml

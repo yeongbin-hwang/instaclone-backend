@@ -63,7 +63,7 @@ jobs:
           kustomize build . -o ../../k8s/auth-api/deployment.yaml
           echo "origin kustomization.yaml "
           cat kustomization.yaml 
-          echo "udpated deployment.yaml "
+          echo "updated deployment.yaml "
           cat ../../k8s/auth-api/deployment.yaml
       - name: Commit files
         run: |
