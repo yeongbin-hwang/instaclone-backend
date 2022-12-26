@@ -10,13 +10,18 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container:
-      image: node:14-alpine
+    strategy:
+      matrix:
+        node: [ 14, 16 ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
       - name: Cache dependencies
         id: cache
         uses: actions/cache@v3
@@ -30,13 +35,15 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Install dependencies
         working-directory: ./backend/users-api/
         run: npm ci
       - name: Test code
         working-directory: ./backend/users-api/
-        run: npm test
+        run: |
+          npm ls
+          npm test
   build:
     needs: test
     runs-on: ubuntu-latest
