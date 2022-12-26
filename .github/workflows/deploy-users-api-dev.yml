@@ -53,7 +53,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          repository: yeongbin/gitops-repo
+          repository: yeongbin-hwang/gitops-repo
           ref: dev
           token: ${{ secrets.TOKEN_GITHUB}}
           path: gitops-repo
