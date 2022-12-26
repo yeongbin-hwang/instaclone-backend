@@ -1,4 +1,4 @@
-name: Posts-api test and build
+name: Posts-api main
 on:
   pull_request:
   push:

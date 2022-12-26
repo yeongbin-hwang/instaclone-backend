@@ -1,4 +1,4 @@
-name: Users-api test and build
+name: Users-api dev
 on: 
   push:
     branches:

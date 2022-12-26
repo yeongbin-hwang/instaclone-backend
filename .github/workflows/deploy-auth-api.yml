@@ -1,4 +1,4 @@
-name: Auth-api test and build
+name: Auth-api main
 on: 
   pull_request:
   push:
