@@ -87,14 +87,9 @@ jobs:
           cat kustomization.yaml 
           echo "updated deployment.yaml "
           cat ../../k8s/auth-api/deployment.yaml
-      - name: Commit files
+      - name: Commit & Push
         run: |
           git config --local user.email "kyh3565800@kaist.ac.kr"
           git config --local user.name "yeongbin-hwang"
           git commit -am "docker image build and update k8s resources - ${{ needs.build.outputs.sha_short }}"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        env:
-          github_token: ${{ secrets.TOKEN_GITHUB }}
-          branch: dev
+          git push -u origin dev
