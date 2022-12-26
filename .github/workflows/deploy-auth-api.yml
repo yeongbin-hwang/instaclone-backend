@@ -5,7 +5,7 @@ on:
     branches:
       - 'main'
     paths:
-      - './backend/auth-api/*'
+      - 'backend/auth-api/**'
   workflow_dispatch:
 jobs:
   test:
@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: ./backend/auth-api/
-        run: npm i
+        run: npm ci
       - name: Test code
         working-directory: ./backend/auth-api/
         run: npm test
@@ -65,6 +65,8 @@ jobs:
           file: ./backend/auth-api/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-auth-api:${{ steps.vars.outputs.sha_short }}
+          cache-from: type=gha
+          cache-to: type=gha, mode=max
   deploy:
     needs: build
     runs-on: ubuntu-latest
