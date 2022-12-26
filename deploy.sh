@@ -1,0 +1,5 @@
+./argocd app create mysql --repo https://github.com/yeongbin-hwang/instaclone-backend.git --path k8s/mysql --dest-server https://kubernetes.default.svc --dest-namespace default
+./argocd app create auth-api --repo https://github.com/yeongbin-hwang/instaclone-backend.git --path k8s/auth-api --dest-server https://kubernetes.default.svc --dest-namespace default
+./argocd app create posts-api --repo https://github.com/yeongbin-hwang/instaclone-backend.git --path k8s/posts-api --dest-server https://kubernetes.default.svc --dest-namespace default
+./argocd app create users-api --repo https://github.com/yeongbin-hwang/instaclone-backend.git --path k8s/users-api --dest-server https://kubernetes.default.svc --dest-namespace default
+./argocd app create frontend --repo https://github.com/yeongbin-hwang/instaclone-backend.git --path k8s/frontend --dest-server https://kubernetes.default.svc --dest-namespace default

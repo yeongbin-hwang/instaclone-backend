@@ -1,11 +1,10 @@
-name: Users-api test and build
+name: Posts-api test and build
 on: 
-  pull_request:
   push:
     branches:
-      - 'main'
+      - 'dev'
     paths:
-      - './backend/users-api/*'
+      - './backend/posts-api/*'
   workflow_dispatch:
 jobs:
   test:
@@ -16,10 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Install dependencies
-        working-directory: ./backend/users-api/
+        working-directory: ./backend/posts-api/
         run: npm i
       - name: Test code
-        working-directory: ./backend/users-api/
+        working-directory: ./backend/posts-api/
         run: npm test
   build:
     needs: test
@@ -40,13 +39,13 @@ jobs:
         id: vars
         run: |
           echo "sha_short=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
-      - name: Build and push (users-api)
+      - name: Build and push (posts-api)
         uses: docker/build-push-action@v3
         with:
-          context: ./backend/users-api/
-          file: ./backend/users-api/Dockerfile
+          context: ./backend/posts-api/
+          file: ./backend/posts-api/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-users-api:${{ steps.vars.outputs.sha_short }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/insta-posts-api:${{ steps.vars.outputs.sha_short }}
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -55,7 +54,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: yeongbin/gitops-repo
-          ref: main
+          ref: dev
           token: ${{ secrets.TOKEN_GITHUB}}
           path: gitops-repo
       - name: Setup Kustomize
@@ -64,13 +63,13 @@ jobs:
           kustomize-version: "3.6.1"
       - name: Kubernetes resources update
         run: |
-          cd manifests/users-api
-          kustomize edit set image ${{ secrets.DOCKER_HUB_USERNAME }}/insta-users-api:${{ needs.build.outputs.sha_short }}
-          kustomize build . -o ../../k8s/users-api/deployment.yaml
+          cd manifests/posts-api
+          kustomize edit set image ${{ secrets.DOCKER_HUB_USERNAME }}/insta-posts-api:${{ needs.build.outputs.sha_short }}
+          kustomize build . -o ../../k8s/posts-api/deployment.yaml
           echo "origin kustomization.yaml "
           cat kustomization.yaml 
           echo "updated deployment.yaml "
-          cat ../../k8s/users-api/deployment.yaml
+          cat ../../k8s/posts-api/deployment.yaml
       - name: Commit files
         run: |
           git config --local user.email "kyh3565800@kaist.ac.kr"
@@ -81,4 +80,4 @@ jobs:
         uses: ad-m/github-push-action@master
         env:
           github_token: ${{ secrets.TOKEN_GITHUB }}
-          branch: main
+          branch: dev

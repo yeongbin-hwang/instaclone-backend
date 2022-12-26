@@ -94,3 +94,5 @@ dist
 
 # Serverless directories
 .serverless/
+
+argocd.exe

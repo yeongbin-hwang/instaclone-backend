@@ -1,9 +1,8 @@
 name: Users-api test and build
 on: 
-  pull_request:
   push:
     branches:
-      - 'main'
+      - 'dev'
     paths:
       - './backend/users-api/*'
   workflow_dispatch:
@@ -55,7 +54,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: yeongbin/gitops-repo
-          ref: main
+          ref: dev
           token: ${{ secrets.TOKEN_GITHUB}}
           path: gitops-repo
       - name: Setup Kustomize
@@ -81,4 +80,4 @@ jobs:
         uses: ad-m/github-push-action@master
         env:
           github_token: ${{ secrets.TOKEN_GITHUB }}
-          branch: main
+          branch: dev
