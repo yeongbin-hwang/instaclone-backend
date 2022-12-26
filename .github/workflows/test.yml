@@ -1,0 +1,41 @@
+name: Auth-api dev
+on: 
+  push:
+    branches:
+      - 'dev'
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: yeongbin-hwang/gitops-repo
+          ref: dev
+          token: ${{ secrets.TOKEN_GITHUB}}
+          path: gitops-repo
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: "3.6.1"
+      - name: Kubernetes resources update
+        run: |
+          cd manifests/auth-api
+          kustomize edit set image ${{ secrets.DOCKER_HUB_USERNAME }}/insta-auth-api:latest
+          kustomize build . -o ../../k8s/auth-api/deployment.yaml
+          echo "origin kustomization.yaml "
+          cat kustomization.yaml 
+          echo "updated deployment.yaml "
+          cat ../../k8s/auth-api/deployment.yaml
+      - name: Commit files
+        run: |
+          git config --local user.email "kyh3565800@kaist.ac.kr"
+          git config --local user.name "yeongbin-hwang"
+          git commit -am "docker image build and update k8s resources - latest"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        env:
+          github_token: ${{ secrets.TOKEN_GITHUB }}
+          branch: dev
