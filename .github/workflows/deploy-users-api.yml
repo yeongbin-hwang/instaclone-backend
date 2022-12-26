@@ -75,7 +75,6 @@ jobs:
           repository: yeongbin-hwang/gitops-repo
           ref: main
           token: ${{ secrets.TOKEN_GITHUB}}
-          path: gitops-repo
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v1
         with:
