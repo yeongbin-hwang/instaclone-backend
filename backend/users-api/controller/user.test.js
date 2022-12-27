@@ -43,7 +43,7 @@ describe("addFollowing", () => {
     expect(res.status).toBeCalledWith(403);
     expect(res.json).toBeCalledWith({
       message: "my information is deleted",
-      statusCode: 403,
+      status: 403,
     });
   });
 
@@ -86,7 +86,7 @@ describe("removeFollowing", () => {
     expect(res.status).toBeCalledWith(403);
     expect(res.json).toBeCalledWith({
       message: "my information is deleted",
-      statusCode: 403,
+      status: 403,
     });
   });
 
