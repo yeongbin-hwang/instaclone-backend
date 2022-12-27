@@ -1,25 +1,25 @@
-const { User, Post, Hashtag, Comment } = require('../models');
+const { User, Post, Hashtag, Comment } = require("../models");
 
 exports.toggleLike = async (req, res, next) => {
   try {
     const user = await User.findOne({
       where: { id: req.user.id },
+      attributes: ["id"],
       include: {
         model: Post,
-        attributes: ['id'],
-        as: 'LikePosts',
+        attributes: ["id"],
+        as: "LikePosts",
+        where: { id: req.params.id },
       },
     });
-    let detect = false;
-    user.LikePosts.forEach((post) => {
-      if (post.id === parseInt(req.params.id, 10)) {
-        detect = true;
-      }
-    });
-    if (detect) await user.removeLikePost(parseInt(req.params.id, 10));
-    else await user.addLikePost(parseInt(req.params.id, 10));
+    if (user) {
+      await user.removeLikePost(parseInt(req.params.id, 10));
+      res.status(200).json({ success: true });
+    } else {
+      await req.user.addLikePost(parseInt(req.params.id, 10));
+      res.status(200).json({ success: true });
+    }
   } catch (err) {
-    console.error(err);
     next(err);
   }
 };
@@ -28,22 +28,22 @@ exports.toggleSave = async (req, res, next) => {
   try {
     const user = await User.findOne({
       where: { id: req.user.id },
+      attributes: ["id"],
       include: {
         model: Post,
-        attributes: ['id'],
-        as: 'SavePosts',
+        attributes: ["id"],
+        as: "SavePosts",
+        where: { id: req.params.id },
       },
     });
-    let detect = false;
-    user.SavePosts.forEach((post) => {
-      if (post.id === parseInt(req.params.id, 10)) {
-        detect = true;
-      }
-    });
-    if (detect) await user.removeSavePost(parseInt(req.params.id, 10));
-    else await user.addSavePost(parseInt(req.params.id, 10));
+    if (user) {
+      await user.removeSavePost(parseInt(req.params.id, 10));
+      res.status(200).json({ success: true });
+    } else {
+      await req.user.addSavePost(parseInt(req.params.id, 10));
+      res.status(200).json({ success: true });
+    }
   } catch (err) {
-    console.error(err);
     next(err);
   }
 };
@@ -53,18 +53,20 @@ exports.deletePost = async (req, res, next) => {
     // check user id is correct or not
     const post = await Post.findOne({
       where: { id: req.params.id },
-      attributes: ['UserId'],
+      attributes: ["UserId"],
     });
-    if (post.UserId !== req.user.id) {
-      res.status(403).json({ message: 'illegal user attempt to delete post' });
-    }
     if (!post) {
-      res.status(403).json({ message: 'do not have the post' });
+      return res.status(403).json({ message: "do not have the post" });
     }
 
-    Post.destroy({ where: { id: req.params.id } });
+    if (post.UserId !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "illegal user attempt to delete post" });
+    }
+
+    await Post.destroy({ where: { id: req.params.id } });
   } catch (err) {
-    console.error(err);
     next(err);
   }
 };
@@ -74,49 +76,49 @@ exports.getPosts = async (req, res, next) => {
     include: [
       {
         model: User,
-        attributes: ['id', 'username', 'avatar'],
+        attributes: ["id", "username", "avatar"],
       },
       {
         model: User,
-        attributes: ['id'],
-        as: 'LikeUsers',
+        attributes: ["id"],
+        as: "LikeUsers",
       },
       {
         model: Comment,
-        attributes: ['id', 'text'],
+        attributes: ["id", "text"],
         include: {
           model: User,
-          attributes: ['id', 'avatar', 'username'],
+          attributes: ["id", "avatar", "username"],
         },
         order: [
-          ['createdAt', 'DESC'],
-          ['updatedAt', 'DESC'],
+          ["createdAt", "DESC"],
+          ["updatedAt", "DESC"],
         ],
       },
     ],
     order: [
-      ['createdAt', 'DESC'],
-      ['updatedAt', 'DESC'],
+      ["createdAt", "DESC"],
+      ["updatedAt", "DESC"],
     ],
   });
   posts.forEach((post) => {
-    post.setDataValue('user', post.User);
-    post.setDataValue('comments', post.Comments);
+    post.setDataValue("user", post.User);
+    post.setDataValue("comments", post.Comments);
     if (post.Comments) {
-      post.setDataValue('commentsCount', post.Comments.length);
-      post.getDataValue('comments').forEach((comment) => {
-        comment.setDataValue('user', comment.User);
+      post.setDataValue("commentsCount", post.Comments.length);
+      post.getDataValue("comments").forEach((comment) => {
+        comment.setDataValue("user", comment.User);
       });
     } else {
-      post.setDataValue('commentsCount', 0);
+      post.setDataValue("commentsCount", 0);
     }
-    post.setDataValue('files', JSON.parse(post.files));
+    post.setDataValue("files", JSON.parse(post.files));
     if (post.User.id === req.user.id) {
-      post.setDataValue('isMine', true);
+      post.setDataValue("isMine", true);
     }
     post.LikeUsers.forEach((user) => {
       if (user.id === req.user.id) {
-        post.setDataValue('isLiked', true);
+        post.setDataValue("isLiked", true);
       }
     });
   });
@@ -149,19 +151,18 @@ exports.uploadPost = async (req, res, next) => {
       where: { id: post.id },
       include: {
         model: User,
-        attributes: ['id', 'username', 'avatar'],
+        attributes: ["id", "username", "avatar"],
       },
     });
-    post.setDataValue('files', JSON.parse(post.files));
-    post.setDataValue('user', post.User);
-    post.setDataValue('isMine', true);
-    post.setDataValue('likesCount', 0);
-    post.setDataValue('comments', []);
-    post.setDataValue('commentsCount', 0);
+    post.setDataValue("files", JSON.parse(post.files));
+    post.setDataValue("user", post.User);
+    post.setDataValue("isMine", true);
+    post.setDataValue("likesCount", 0);
+    post.setDataValue("comments", []);
+    post.setDataValue("commentsCount", 0);
     console.log(post);
     res.status(200).json({ success: true, data: post });
   } catch (err) {
-    console.error(err);
     next(err);
   }
 };
@@ -172,47 +173,47 @@ exports.getDetailPost = async (req, res, next) => {
     include: [
       {
         model: User,
-        attributes: ['id', 'username', 'avatar'],
+        attributes: ["id", "username", "avatar"],
       },
       {
         model: User,
-        attributes: ['id'],
-        as: 'LikeUsers',
+        attributes: ["id"],
+        as: "LikeUsers",
       },
       {
         model: Comment,
-        attributes: ['id', 'text'],
+        attributes: ["id", "text"],
         include: {
           model: User,
-          attributes: ['id', 'avatar', 'username'],
+          attributes: ["id", "avatar", "username"],
         },
         order: [
-          ['createdAt', 'DESC'],
-          ['updatedAt', 'DESC'],
+          ["createdAt", "DESC"],
+          ["updatedAt", "DESC"],
         ],
       },
     ],
   });
-  post.setDataValue('files', JSON.parse(post.files));
-  post.setDataValue('user', post.User);
+  post.setDataValue("files", JSON.parse(post.files));
+  post.setDataValue("user", post.User);
   if (post.User.id === req.user.id) {
-    post.setDataValue('isMine', true);
+    post.setDataValue("isMine", true);
   }
-  post.setDataValue('comments', post.Comments);
+  post.setDataValue("comments", post.Comments);
   if (post.Comments) {
-    post.setDataValue('commentsCount', post.Comments.length);
-    post.getDataValue('comments').forEach((comment) => {
-      comment.setDataValue('user', comment.User);
+    post.setDataValue("commentsCount", post.Comments.length);
+    post.getDataValue("comments").forEach((comment) => {
+      comment.setDataValue("user", comment.User);
     });
   } else {
-    post.setDataValue('commentsCount', 0);
+    post.setDataValue("commentsCount", 0);
   }
   post.LikeUsers.forEach((user) => {
     if (user.id === req.user.id) {
-      post.setDataValue('isLiked', true);
+      post.setDataValue("isLiked", true);
     }
   });
-  post.setDataValue('likesCount', post.LikeUsers.length);
+  post.setDataValue("likesCount", post.LikeUsers.length);
 
   res.status(200).json({ success: true, data: post });
 };
@@ -220,7 +221,6 @@ exports.getDetailPost = async (req, res, next) => {
 exports.updatePost = async (req, res, next) => {
   try {
   } catch (err) {
-    console.error(err);
     next(err);
   }
 };
@@ -237,11 +237,10 @@ exports.uploadComment = async (req, res, next) => {
     const user = {};
     user.avatar = req.user.avatar;
     user.username = req.user.username;
-    comment.setDataValue('user', user);
+    comment.setDataValue("user", user);
 
     res.status(200).json({ success: true, data: comment });
   } catch (err) {
-    console.error(err);
     next(err);
   }
 };
