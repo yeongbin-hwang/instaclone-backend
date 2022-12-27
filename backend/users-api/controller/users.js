@@ -2,19 +2,9 @@ const { Post, User, Comment } = require("../models");
 
 exports.addFollowing = async (req, res, next) => {
   try {
-    const user = await User.findOne({
-      where: { id: req.user.id },
-      exclude: ["password"],
-    });
-    if (user) {
-      await user.addFollowings(parseInt(req.params.id, 10));
-      res.status(200).json({ success: true });
-    } else {
-      res.status(403).json({
-        message: "my information is deleted",
-        status: 403,
-      });
-    }
+    const user = req.user;
+    await user.addFollowings(parseInt(req.params.id, 10));
+    res.status(200).json({ success: true });
   } catch (err) {
     next(err);
   }
@@ -22,19 +12,9 @@ exports.addFollowing = async (req, res, next) => {
 
 exports.removeFollowing = async (req, res, next) => {
   try {
-    const user = await User.findOne({
-      where: { id: req.user.id },
-      exclude: ["password"],
-    });
-    if (user) {
-      await user.removeFollowings(parseInt(req.params.id, 10));
-      res.status(200).json({ success: true });
-    } else {
-      res.status(403).json({
-        message: "my information is deleted",
-        status: 403,
-      });
-    }
+    const user = req.user;
+    await user.removeFollowings(parseInt(req.params.id, 10));
+    res.status(200).json({ success: true });
   } catch (err) {
     next(err);
   }
@@ -44,7 +24,12 @@ exports.getFeeds = async (req, res, next) => {
   try {
     // for test without token
     // req.user = req.body.user;
+
+    // only feed that uploaded by person i following
     const posts = await Post.findAll({
+      where: {
+        UserId: req.user.Followings.map((f) => f.id).concat(req.user.id),
+      },
       include: [
         {
           model: User,
@@ -194,12 +179,12 @@ exports.updateProfile = async (req, res, next) => {
   // for test without token
   // req.user = req.body.user;
   const { fullname, username, website, bio, avatar } = req.body;
-  if (fullname === null || username === null) {
-    res.status(403).json({ message: "please enter the name" });
+  if (fullname == null || username == null) {
+    return res.status(403).json({ message: "please enter the name" });
   }
 
   try {
-    const user = await User.update(
+    await User.update(
       {
         fullname,
         username,
@@ -212,7 +197,12 @@ exports.updateProfile = async (req, res, next) => {
         fields: ["fullname", "username", "website", "bio", "avatar"],
       }
     );
-    console.log(user);
+    const user = await User.findOne({
+      where: { id: req.user.id },
+      attributes: {
+        exclude: ["password"],
+      },
+    });
     res.status(200).json({ success: true, data: user });
   } catch (err) {
     next(err);
@@ -225,22 +215,20 @@ exports.getSuggestionFollowing = async (req, res, next) => {
     // req.user = req.body.user;
     const myUser = await User.findOne({
       where: { id: req.user.id },
+      attributes: ["id"],
       include: {
         model: User,
         attributes: ["id"],
         as: "Followings",
       },
     });
-    let users = await User.findAll();
-    users = users.filter((user) => user.id != req.user.id);
-    users.forEach((user) => {
-      myUser.Followings.forEach((following) => {
-        if (following.id === user.id) {
-          user.setDataValue("isFollowing", true);
-        }
-      });
+    let users = await User.findAll({
+      attributes: ["id", "fullname", "username", "avatar"],
     });
-    res.status(200).json({ success: true, data: users });
+    const followings = myUser.Followings.map((f) => f.id).concat(req.user.id);
+    users = users.filter((user) => !followings.includes(user.id));
+
+    return res.status(200).json({ success: true, data: users });
   } catch (err) {
     next(err);
   }
