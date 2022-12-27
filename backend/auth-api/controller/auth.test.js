@@ -28,9 +28,9 @@ describe("verifyCheck", () => {
       },
     };
     await verifyCheck(req, res, next);
-    expect(next).toBeCalledWith({
+    expect(res.status).toBeCalledWith(403);
+    expect(res.json).toBeCalledWith({
       message: "You need to be logged in to visit this route",
-      statusCode: 403,
     });
   });
 
@@ -73,7 +73,8 @@ describe("verifyCheck", () => {
   test("If not valid token, call status(403)", async () => {
     User.findOne.mockReturnValue(Promise.resolve(null));
     await verifyCheck(req, res, next);
-    expect(next).toBeCalledWith({
+    expect(res.status).toBeCalledWith(403);
+    expect(res.json).toBeCalledWith({
       message: "no user found for email yb@yb",
     });
   });
@@ -83,7 +84,7 @@ describe("verifyCheck", () => {
     await verifyCheck(req, res, next);
     expect(next).toBeCalledWith({
       message: "You need to be logged in to visit this route",
-      statusCode: 403,
+      status: 403,
     });
   });
 });

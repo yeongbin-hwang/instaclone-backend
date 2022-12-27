@@ -6,7 +6,7 @@ exports.login = async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ where: { email } });
   if (!user) {
-    res.status(403).json({ message: "wrong id or password" });
+    return res.status(403).json({ message: "wrong id or password" });
   }
   try {
     const result = await bcrypt.compare(password, user.password);
@@ -23,13 +23,9 @@ exports.login = async (req, res, next) => {
       );
       res.status(200).json({ success: true, token });
     } else {
-      next({
-        message: "you dont have wrong id or password",
-        statusCode: 403,
-      });
+      res.status(403).json({ message: "you dont have wrong id or password" });
     }
   } catch (err) {
-    console.error(err);
     next(err);
   }
 };
@@ -38,7 +34,7 @@ exports.signup = async (req, res, next) => {
   const { email, fullname, username, password } = req.body;
   const exUser = await User.findOne({ where: { email } });
   if (exUser) {
-    res.status(403).json({ message: "email already exists" });
+    return res.status(403).json({ message: "email already exists" });
   }
   try {
     const hash = await bcrypt.hash(password, 12);
@@ -60,7 +56,6 @@ exports.signup = async (req, res, next) => {
     );
     res.status(200).json({ success: true, token });
   } catch (err) {
-    console.error(err);
     next(err);
   }
 };
@@ -74,10 +69,9 @@ exports.verifyCheck = async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   }
   if (!token) {
-    return next({
-      message: "You need to be logged in to visit this route",
-      statusCode: 403,
-    });
+    return res
+      .status(403)
+      .json({ message: "You need to be logged in to visit this route" });
   }
 
   try {
@@ -85,7 +79,9 @@ exports.verifyCheck = async (req, res, next) => {
     const user = await User.findOne({ where: { email: decoded.email } });
 
     if (!user) {
-      return next({ message: `no user found for email ${decoded.email}` });
+      return res
+        .status(403)
+        .json({ message: `no user found for email ${decoded.email}` });
     }
 
     req.user = user;
@@ -102,7 +98,7 @@ exports.verifyCheck = async (req, res, next) => {
   } catch (err) {
     next({
       message: "You need to be logged in to visit this route",
-      statusCode: 403,
+      status: 403,
     });
   }
 };

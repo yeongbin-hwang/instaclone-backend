@@ -44,7 +44,7 @@ describe("verifyToken", () => {
     await verifyToken(req, res, next);
     expect(next).toBeCalledWith({
       message: "your token is invalid",
-      statusCode: 403,
+      status: 401,
     });
   });
 

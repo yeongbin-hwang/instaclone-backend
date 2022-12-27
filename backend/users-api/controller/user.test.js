@@ -14,7 +14,10 @@ const {
 
 describe("addFollowing", () => {
   const req = {
-    user: { id: 1 },
+    user: {
+      id: 1,
+      addFollowings: jest.fn(),
+    },
     params: { id: 2 },
   };
   const res = {
@@ -22,34 +25,17 @@ describe("addFollowing", () => {
     json: jest.fn(),
   };
   const next = jest.fn();
-  test("if find user, return status(200)", async () => {
-    User.findOne.mockReturnValue(
-      Promise.resolve({
-        id: 1,
-        name: "yb",
-        addFollowings(id) {
-          return Promise.resolve(true);
-        },
-      })
-    );
+  test("run addFollowings, return status(200)", async () => {
     await addFollowing(req, res, next);
     expect(res.status).toBeCalledWith(200);
     expect(res.json).toBeCalledWith({ success: true });
   });
 
-  test("if not find user, return status(403)", async () => {
-    User.findOne.mockReturnValue(Promise.resolve(null));
-    await addFollowing(req, res, next);
-    expect(res.status).toBeCalledWith(403);
-    expect(res.json).toBeCalledWith({
-      message: "my information is deleted",
-      statusCode: 403,
-    });
-  });
-
   test("if error in db, return error", async () => {
     const error = "db error";
-    User.findOne.mockReturnValue(Promise.reject(error));
+    req.user.addFollowings = jest.fn(() => {
+      return Promise.reject(error);
+    });
     await addFollowing(req, res, next);
     expect(next).toBeCalledWith(error);
   });
@@ -57,7 +43,10 @@ describe("addFollowing", () => {
 
 describe("removeFollowing", () => {
   const req = {
-    user: { id: 1 },
+    user: {
+      id: 1,
+      removeFollowings: jest.fn(),
+    },
     params: { id: 2 },
   };
   const res = {
@@ -65,34 +54,17 @@ describe("removeFollowing", () => {
     json: jest.fn(),
   };
   const next = jest.fn();
-  test("if find user, return status(200)", async () => {
-    User.findOne.mockReturnValue(
-      Promise.resolve({
-        id: 1,
-        name: "yb",
-        removeFollowings(id) {
-          return Promise.resolve(true);
-        },
-      })
-    );
+  test("run removeFollowings, return status(200)", async () => {
     await removeFollowing(req, res, next);
     expect(res.status).toBeCalledWith(200);
     expect(res.json).toBeCalledWith({ success: true });
   });
 
-  test("if not find user, return status(403)", async () => {
-    User.findOne.mockReturnValue(Promise.resolve(null));
-    await removeFollowing(req, res, next);
-    expect(res.status).toBeCalledWith(403);
-    expect(res.json).toBeCalledWith({
-      message: "my information is deleted",
-      statusCode: 403,
-    });
-  });
-
   test("if error in db, return error", async () => {
     const error = "db error";
-    User.findOne.mockReturnValue(Promise.reject(error));
+    req.user.removeFollowings = jest.fn(() => {
+      return Promise.reject(error);
+    });
     await removeFollowing(req, res, next);
     expect(next).toBeCalledWith(error);
   });
