@@ -161,7 +161,7 @@ exports.uploadPost = async (req, res, next) => {
     post.setDataValue("comments", []);
     post.setDataValue("commentsCount", 0);
     console.log(post);
-    res.status(200).json({ success: true, data: post });
+    res.status(201).json({ success: true, data: post });
   } catch (err) {
     next(err);
   }
