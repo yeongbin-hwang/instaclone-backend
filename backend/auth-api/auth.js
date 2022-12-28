@@ -3,6 +3,7 @@ const session = require("express-session");
 const cors = require("cors");
 const morgan = require("morgan");
 
+const { swaggerUi, specs, setUpoption } = require("./handler/export-swagger");
 const { login, signup, verifyCheck } = require("./controller/auth");
 const { sequelize } = require("./models");
 sequelize
@@ -15,6 +16,8 @@ sequelize
   });
 
 const router = express();
+router.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, setUpoption));
+
 router.set("port", process.env.PORT || 8001);
 router.use(morgan("dev"));
 router.use(express.json());

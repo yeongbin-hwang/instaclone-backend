@@ -1,15 +1,15 @@
 const swaggerOpenApiVersion = "3.0.0";
 
 const swaggerInfo = {
-  title: "Swagger-Handler",
+  title: "Swagger-Hanlder",
   version: "1.0.0",
   description: "Test API with express",
 };
 
 const swaggerTags = [
   {
-    name: "Post",
-    description: "post API",
+    name: "Auth",
+    description: "auth API",
   },
 ];
 
@@ -33,8 +33,8 @@ const swaggerProduces = ["application/json"];
 
 const swaggerServers = [
   {
-    url: "http://localhost:8002",
-    description: "posts-api server",
+    url: "http://localhost:8001",
+    description: "auth-api server",
   },
 ];
 

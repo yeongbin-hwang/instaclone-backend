@@ -54,7 +54,7 @@ exports.signup = async (req, res, next) => {
         issuer: "instaclone-server",
       }
     );
-    res.status(200).json({ success: true, token });
+    res.status(201).json({ success: true, token });
   } catch (err) {
     next(err);
   }
