@@ -3,6 +3,7 @@ const session = require("express-session");
 const cors = require("cors");
 const morgan = require("morgan");
 
+const { swaggerUi, specs, setUpoption } = require("./handler/export-swagger");
 const { verifyToken } = require("./middlewares");
 const { sequelize } = require("./models");
 sequelize
@@ -24,6 +25,7 @@ const {
 } = require("./controller/users");
 
 const router = express();
+router.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, setUpoption));
 
 router.set("port", process.env.PORT || 8000);
 router.use(morgan("dev"));
@@ -41,7 +43,6 @@ router.use(
   })
 );
 router.use(cors());
-
 router.use(verifyToken);
 
 router.get("/users/", getSuggestionFollowing);
