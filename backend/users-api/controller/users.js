@@ -4,6 +4,7 @@ exports.addFollowing = async (req, res, next) => {
   try {
     const user = req.user;
     await user.addFollowings(parseInt(req.params.id, 10));
+    console.log(req.params);
     res.status(200).json({ success: true });
   } catch (err) {
     next(err);

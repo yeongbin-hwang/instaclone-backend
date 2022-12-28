@@ -3,6 +3,7 @@ const session = require("express-session");
 const cors = require("cors");
 const morgan = require("morgan");
 
+const { swaggerUi, specs, setUpoption } = require("./handler/export-swagger");
 const { verifyToken } = require("./middlewares");
 const { sequelize } = require("./models");
 
@@ -27,6 +28,8 @@ const {
 } = require("./controller/posts");
 
 const router = express();
+router.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, setUpoption));
+
 router.set("port", process.env.PORT || 8002);
 router.use(morgan("dev"));
 router.use(express.json());
@@ -49,7 +52,7 @@ router.use(verifyToken);
 router.get("/posts/", getPosts);
 router.post("/posts/", uploadPost);
 router.get("/posts/:id", getDetailPost);
-router.post("/posts/:id", updatePost);
+router.put("/posts/:id", updatePost);
 router.delete("/posts/:id", deletePost);
 
 router.get("/posts/:id/toggleLike", toggleLike);
