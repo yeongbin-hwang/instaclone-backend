@@ -4,7 +4,6 @@ exports.addFollowing = async (req, res, next) => {
   try {
     const user = req.user;
     await user.addFollowings(parseInt(req.params.id, 10));
-    console.log(req.params);
     res.status(200).json({ success: true });
   } catch (err) {
     next(err);
@@ -227,7 +226,7 @@ exports.getSuggestionFollowing = async (req, res, next) => {
     let users = await User.findAll({
       attributes: ["id", "fullname", "username", "avatar"],
     });
-    console.log(users);
+    // console.log(users);
     const followings = myUser.Followings.map((f) => f.id).concat(req.user.id);
     users = users.filter((user) => !followings.includes(user.id));
     return res.status(200).json({ success: true, data: users });

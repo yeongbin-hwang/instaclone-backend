@@ -4,6 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 const { swaggerUi, specs, setUpoption } = require("./handler/export-swagger");
+const { verifyToken } = require("./middlewares");
 const { login, signup, verifyCheck } = require("./controller/auth");
 const { sequelize } = require("./models");
 sequelize
@@ -37,7 +38,7 @@ router.use(cors());
 
 router.post("/auth/login", login);
 router.post("/auth/signup", signup);
-router.get("/auth/me", verifyCheck);
+router.get("/auth/me", verifyToken, verifyCheck);
 
 router.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} no router`);
