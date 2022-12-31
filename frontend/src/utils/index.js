@@ -32,10 +32,14 @@ export const timeSince = (timestamp) => {
 
 export const client = (endpoint, { body, ...customConfig } = {}) => {
   const token = localStorage.getItem("token");
+  const refreshToken = localStorage.getItem("refreshToken");
   const headers = { "Content-Type": "application/json" };
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  }
+  if (refreshToken) {
+    headers.Refresh = `${refreshToken}`;
   }
 
   const config = {
@@ -50,10 +54,14 @@ export const client = (endpoint, { body, ...customConfig } = {}) => {
   if (body) {
     config.body = JSON.stringify(body);
   }
-
+  console.log("hii");
   if (endpoint.includes("users")) {
-    console.log(`${endpoint}`);
-    return fetch(`${endpoint}`, config).then(async (res) => {
+    const userapiUrl =
+      process.env.NODE_ENV == "development"
+        ? `${process.env.REACT_APP_USERS_API_URL}`
+        : "";
+    console.log(`${userapiUrl}`);
+    return fetch(`${userapiUrl}${endpoint}`, config).then(async (res) => {
       const data = await res.json();
       if (res.ok) {
         return data;
@@ -62,8 +70,12 @@ export const client = (endpoint, { body, ...customConfig } = {}) => {
       }
     });
   } else if (endpoint.includes("auth")) {
-    console.log(`${endpoint}`);
-    return fetch(`${endpoint}`, config).then(async (res) => {
+    const authapiUrl =
+      process.env.NODE_ENV == "development"
+        ? `${process.env.REACT_APP_AUTH_API_URL}`
+        : "";
+    console.log(`${authapiUrl}`);
+    return fetch(`${authapiUrl}${endpoint}`, config).then(async (res) => {
       const data = await res.json();
       if (res.ok) {
         return data;
@@ -72,8 +84,12 @@ export const client = (endpoint, { body, ...customConfig } = {}) => {
       }
     });
   } else if (endpoint.includes("posts")) {
-    console.log(`${endpoint}`);
-    return fetch(`${endpoint}`, config).then(async (res) => {
+    const postapiUrl =
+      process.env.NODE_ENV == "development"
+        ? `${process.env.REACT_APP_POSTS_API_URL}`
+        : "";
+    console.log(`${postapiUrl}`);
+    return fetch(`${postapiUrl}${endpoint}`, config).then(async (res) => {
       const data = await res.json();
       if (res.ok) {
         return data;
@@ -89,7 +105,12 @@ export const uploadImage = (file) => {
   data.append("file", file);
   data.append("upload_preset", "ckgj8jch");
 
-  return fetch("/upload", {
+  const cloudinaryUrl =
+    process.env.NODE_ENV == "development"
+      ? `${process.env.REACT_APP_CLOUDINARY_URL}`
+      : "/upload";
+
+  return fetch(`${cloudinaryUrl}`, {
     method: "POST",
     body: data,
   }).then((res) => res.json());

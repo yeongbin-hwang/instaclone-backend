@@ -64,12 +64,14 @@ const Login = ({ signup }) => {
     const body = { email: email.value, password: password.value };
 
     try {
-      const { token, data } = await client("/auth/login", { body });
-      console.log(token);
-      if (!token) {
+      const { accessToken, refreshToken, data } = await client("/auth/login", {
+        body,
+      });
+      if (!accessToken) {
         return toast.error(data);
       }
-      localStorage.setItem("token", token);
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
     } catch (err) {
       return toast.error(err.message);
     }

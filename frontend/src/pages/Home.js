@@ -24,16 +24,37 @@ const Home = () => {
   useEffect(() => {
     const logout = () => {
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       setUser(null);
     };
 
     client("/users/feed")
       .then((res) => {
-        setFeed(res.data);
-        setLoading(false);
+        // access token expired
+        let expired = false;
+        if (res.accessToken) {
+          localStorage.setItem("token", res.accessToken);
+          expired = true;
+        } else {
+          setFeed(res.data);
+          setLoading(false);
+        }
+        return expired;
       })
-      .catch((res) => console.log(res));
+      .then((expired) => {
+        // get new token and re-request
+        if (expired) {
+          client("/users/feed").then((res) => {
+            setFeed(res.data);
+            setLoading(false);
+          });
+        }
+      })
+      .catch((res) => {
+        console.log(res);
+        logout();
+      });
   }, [setFeed, setUser]);
 
   if (loading) {
