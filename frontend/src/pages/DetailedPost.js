@@ -138,7 +138,7 @@ const DetailedPost = () => {
     client(`/posts/${postId}`)
       .then((res) => {
         setPost(res.data);
-        setComments(res.data.comments);
+        setComments(res.data.Comments);
         setLikes(res.data.likesCount);
         setLoading(false);
         setDeadend(false);
@@ -171,16 +171,16 @@ const DetailedPost = () => {
         <div className="post-header-wrapper">
           <div className="post-header">
             <Avatar
-              onClick={() => history.push(`/${post.user?.username}`)}
+              onClick={() => history.push(`/${post.User?.username}`)}
               className="pointer avatar"
-              src={post.user?.avatar}
+              src={post.User?.avatar}
               alt="avatar"
             />
             <h3
               className="pointer"
-              onClick={() => history.push(`/${post.user?.username}`)}
+              onClick={() => history.push(`/${post.User?.username}`)}
             >
-              {post.user?.username}
+              {post.User?.username}
             </h3>
             &nbsp; {post.caption}
           </div>

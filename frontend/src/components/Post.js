@@ -155,15 +155,15 @@ const Post = ({ post }) => {
         <div className="post-header">
           <Avatar
             className="pointer"
-            src={post.user?.avatar}
+            src={post.User?.avatar}
             alt="avatar"
-            onClick={() => history.push(`/${post.user?.username}`)}
+            onClick={() => history.push(`/${post.User?.username}`)}
           />
           <h3
             className="pointer"
-            onClick={() => history.push(`/${post.user?.username}`)}
+            onClick={() => history.push(`/${post.User?.username}`)}
           >
-            {post.user?.username}
+            {post.User?.username}
           </h3>
         </div>
 
@@ -202,10 +202,10 @@ const Post = ({ post }) => {
 
         <p>
           <span
-            onClick={() => history.push(`/${post.user?.username}`)}
+            onClick={() => history.push(`/${post.User?.username}`)}
             className="pointer username bold"
           >
-            {post.user?.username}
+            {post.User?.username}
           </span>
           {post.caption}
         </p>
@@ -219,7 +219,7 @@ const Post = ({ post }) => {
           </span>
         )}
 
-        {post.comments?.slice(0, 2).map((comment) => (
+        {post.Comments?.slice(0, 2).map((comment) => (
           <Comment key={comment.id} hideavatar={true} comment={comment} />
         ))}
 

@@ -4,7 +4,6 @@ exports.addFollowing = async (req, res, next) => {
   try {
     const user = req.user;
     await user.addFollowings(parseInt(req.params.id, 10));
-    console.log(req.params);
     res.status(200).json({ success: true });
   } catch (err) {
     next(err);
@@ -64,22 +63,13 @@ exports.getFeeds = async (req, res, next) => {
         ["updatedAt", "DESC"],
       ],
     });
-    // convert mysql form to mongodb for frontend
+    // process data for frontend
     posts.forEach((post) => {
-      post.setDataValue("user", post.User);
       post.setDataValue("files", JSON.parse(post.files));
       if (post.User.id === req.user.id) {
         post.setDataValue("isMine", true);
       }
-      post.setDataValue("comments", post.Comments);
-      if (post.Comments) {
-        post.setDataValue("commentsCount", post.Comments.length);
-        post.getDataValue("comments").forEach((comment) => {
-          comment.setDataValue("user", comment.User);
-        });
-      } else {
-        post.setDataValue("commentsCount", 0);
-      }
+      post.setDataValue("commentsCount", post.Comments.length);
       post.LikeUsers.forEach((user) => {
         if (user.id === req.user.id) {
           post.setDataValue("isLiked", true);
@@ -93,7 +83,6 @@ exports.getFeeds = async (req, res, next) => {
         }
       });
     });
-    console.log(posts);
     res.status(200).json({ success: true, data: posts });
   } catch (err) {
     next(err);
@@ -118,8 +107,10 @@ exports.getProfile = async (req, res, next) => {
         },
         {
           model: Post,
-          attributes: ["id"],
           as: "SavePosts",
+        },
+        {
+          model: Post,
         },
       ],
     });
@@ -130,18 +121,11 @@ exports.getProfile = async (req, res, next) => {
       });
     }
 
-    const savedPosts = await Post.findAll({
-      where: { id: user.SavePosts.map((f) => f.id) },
-    });
-    const posts = await Post.findAll({
-      where: { UserId: user.id },
-    });
-
-    // convert mysql form to mongodb for frontend
-    savedPosts.forEach((post) => {
+    // process data for frontend
+    user.SavePosts.forEach((post) => {
       post.setDataValue("files", JSON.parse(post.files));
     });
-    posts.forEach((post) => {
+    user.Posts.forEach((post) => {
       post.setDataValue("files", JSON.parse(post.files));
     });
 
@@ -151,19 +135,15 @@ exports.getProfile = async (req, res, next) => {
       user.setDataValue("isMe", true);
     }
 
-    user.setDataValue("savedPosts", savedPosts);
-    user.setDataValue("posts", posts);
-    user.setDataValue("postCount", posts.length);
-    user.setDataValue("following", user.Followings);
-    user.getDataValue("following").forEach((following) => {
+    user.Followings.forEach((following) => {
       if (req.user.Followings.map((f) => f.id).includes(following.id)) {
         following.setDataValue("isFollowing", true);
       }
     });
+    user.setDataValue("postCount", user.Posts.length);
     user.setDataValue("followingCount", user.Followings.length);
-    user.setDataValue("followers", user.Followers);
     user.setDataValue("followersCount", user.Followers.length);
-    user.getDataValue("followers").forEach((follower) => {
+    user.Followers.forEach((follower) => {
       if (req.user.Followings.map((f) => f.id).includes(follower.id)) {
         follower.setDataValue("isFollowing", true);
       }
@@ -171,6 +151,7 @@ exports.getProfile = async (req, res, next) => {
         user.setDataValue("isFollowing", true);
       }
     });
+    console.log(user);
     return res.status(200).json({ success: true, data: user });
   } catch (err) {
     next(err);
@@ -227,10 +208,9 @@ exports.getSuggestionFollowing = async (req, res, next) => {
     let users = await User.findAll({
       attributes: ["id", "fullname", "username", "avatar"],
     });
-    console.log(users);
     const followings = myUser.Followings.map((f) => f.id).concat(req.user.id);
     users = users.filter((user) => !followings.includes(user.id));
-    return res.status(200).json({ success: true, data: users });
+    res.status(200).json({ success: true, data: users });
   } catch (err) {
     next(err);
   }

@@ -19,18 +19,18 @@ const Comment = ({ comment, hideavatar }) => {
       {!hideavatar && (
         <Avatar
           className="pointer"
-          onClick={() => history.push(`/${comment.user.username}`)}
-          src={comment.user.avatar}
+          onClick={() => history.push(`/${comment.User.username}`)}
+          src={comment.User.avatar}
           alt="avatar"
         />
       )}
 
       <p>
         <span
-          onClick={() => history.push(`/${comment.user.username}`)}
+          onClick={() => history.push(`/${comment.User.username}`)}
           className="bold pointer"
         >
-          {comment.user.username}
+          {comment.User.username}
         </span>
         {comment.text}
       </p>

@@ -95,28 +95,28 @@ const Profile = () => {
 
       {tab === "POSTS" && (
         <>
-          {profile?.posts?.length === 0 ? (
+          {profile?.Posts?.length === 0 ? (
             <Placeholder
               title="Posts"
               text="Once you start making new posts, they'll appear here"
               icon="post"
             />
           ) : (
-            <PostPreview posts={profile?.posts} />
+            <PostPreview posts={profile?.Posts} />
           )}
         </>
       )}
 
       {tab === "SAVED" && (
         <>
-          {profile?.savedPosts?.length === 0 ? (
+          {profile?.SavePosts?.length === 0 ? (
             <Placeholder
               title="Saved"
               text="Save photos and videos that you want to see again"
               icon="bookmark"
             />
           ) : (
-            <PostPreview posts={profile?.savedPosts} />
+            <PostPreview posts={profile?.SavePosts} />
           )}
         </>
       )}
