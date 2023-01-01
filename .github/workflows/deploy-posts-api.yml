@@ -3,16 +3,16 @@ on:
   pull_request:
   push:
     branches:
-      - 'main'
+      - "main"
     paths:
-      - 'backend/posts-api/**'
+      - "backend/posts-api/**"
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 14, 16 ]
+        node: [14, 16]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -28,12 +28,12 @@ jobs:
         env:
           cache-name: cache-node-modules
         with:
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/posts-api/package-lock.json') }}
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: ./backend/posts-api/
-        run: npm ci
+        run: npm i
       - name: Test code
         working-directory: ./backend/posts-api/
         run: npm test
