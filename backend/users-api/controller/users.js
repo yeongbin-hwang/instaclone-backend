@@ -111,7 +111,7 @@ exports.getProfile = async (req, res, next) => {
         },
         {
           model: Post,
-        }
+        },
       ],
     });
     if (!user) {
@@ -208,10 +208,9 @@ exports.getSuggestionFollowing = async (req, res, next) => {
     let users = await User.findAll({
       attributes: ["id", "fullname", "username", "avatar"],
     });
-    // console.log(users);
     const followings = myUser.Followings.map((f) => f.id).concat(req.user.id);
     users = users.filter((user) => !followings.includes(user.id));
-    return res.status(200).json({ success: true, data: users });
+    res.status(200).json({ success: true, data: users });
   } catch (err) {
     next(err);
   }

@@ -72,49 +72,52 @@ exports.deletePost = async (req, res, next) => {
 };
 
 exports.getPosts = async (req, res, next) => {
-  const posts = await Post.findAll({
-    include: [
-      {
-        model: User,
-        attributes: ["id", "username", "avatar"],
-      },
-      {
-        model: User,
-        attributes: ["id"],
-        as: "LikeUsers",
-      },
-      {
-        model: Comment,
-        attributes: ["id", "text"],
-        include: {
+  try {
+    const posts = await Post.findAll({
+      include: [
+        {
           model: User,
-          attributes: ["id", "avatar", "username"],
+          attributes: ["id", "username", "avatar"],
         },
-        order: [
-          ["createdAt", "DESC"],
-          ["updatedAt", "DESC"],
-        ],
-      },
-    ],
-    order: [
-      ["createdAt", "DESC"],
-      ["updatedAt", "DESC"],
-    ],
-  });
-  posts.forEach((post) => {
-    post.setDataValue("commentsCount", post.Comments.length);
-    post.setDataValue("files", JSON.parse(post.files));
-    if (post.User.id === req.user.id) {
-      post.setDataValue("isMine", true);
-    }
-    post.LikeUsers.forEach((user) => {
-      if (user.id === req.user.id) {
-        post.setDataValue("isLiked", true);
-      }
+        {
+          model: User,
+          attributes: ["id"],
+          as: "LikeUsers",
+        },
+        {
+          model: Comment,
+          attributes: ["id", "text"],
+          include: {
+            model: User,
+            attributes: ["id", "avatar", "username"],
+          },
+          order: [
+            ["createdAt", "DESC"],
+            ["updatedAt", "DESC"],
+          ],
+        },
+      ],
+      order: [
+        ["createdAt", "DESC"],
+        ["updatedAt", "DESC"],
+      ],
     });
-  });
-
-  res.status(200).json({ success: true, data: posts });
+    posts.forEach((post) => {
+      post.setDataValue("commentsCount", post.Comments.length);
+      post.setDataValue("files", JSON.parse(post.files));
+      if (post.User.id === req.user.id) {
+        post.setDataValue("isMine", true);
+      }
+      post.LikeUsers.forEach((user) => {
+        if (user.id === req.user.id) {
+          post.setDataValue("isLiked", true);
+        }
+      });
+    });
+    res.status(200).json({ success: true, data: posts });
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.uploadPost = async (req, res, next) => {
@@ -155,45 +158,49 @@ exports.uploadPost = async (req, res, next) => {
 };
 
 exports.getDetailPost = async (req, res, next) => {
-  const post = await Post.findOne({
-    where: { id: req.params.id },
-    include: [
-      {
-        model: User,
-        attributes: ["id", "username", "avatar"],
-      },
-      {
-        model: User,
-        attributes: ["id"],
-        as: "LikeUsers",
-      },
-      {
-        model: Comment,
-        attributes: ["id", "text"],
-        include: {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.id },
+      include: [
+        {
           model: User,
-          attributes: ["id", "avatar", "username"],
+          attributes: ["id", "username", "avatar"],
         },
-        order: [
-          ["createdAt", "DESC"],
-          ["updatedAt", "DESC"],
-        ],
-      },
-    ],
-  });
-  // process data for frontend
-  post.setDataValue("files", JSON.parse(post.files));
-  if (post.User.id === req.user.id) {
-    post.setDataValue("isMine", true);
-  }
-  post.setDataValue("commentsCount", post.Comments.length);
-  post.LikeUsers.forEach((user) => {
-    if (user.id === req.user.id) {
-      post.setDataValue("isLiked", true);
+        {
+          model: User,
+          attributes: ["id"],
+          as: "LikeUsers",
+        },
+        {
+          model: Comment,
+          attributes: ["id", "text"],
+          include: {
+            model: User,
+            attributes: ["id", "avatar", "username"],
+          },
+          order: [
+            ["createdAt", "DESC"],
+            ["updatedAt", "DESC"],
+          ],
+        },
+      ],
+    });
+    // process data for frontend
+    post.setDataValue("files", JSON.parse(post.files));
+    if (post.User.id === req.user.id) {
+      post.setDataValue("isMine", true);
     }
-  });
-  post.setDataValue("likesCount", post.LikeUsers.length);
-  res.status(200).json({ success: true, data: post });
+    post.setDataValue("commentsCount", post.Comments.length);
+    post.LikeUsers.forEach((user) => {
+      if (user.id === req.user.id) {
+        post.setDataValue("isLiked", true);
+      }
+    });
+    post.setDataValue("likesCount", post.LikeUsers.length);
+    res.status(200).json({ success: true, data: post });
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.updatePost = async (req, res, next) => {
