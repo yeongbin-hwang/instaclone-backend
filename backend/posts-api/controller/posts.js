@@ -102,16 +102,7 @@ exports.getPosts = async (req, res, next) => {
     ],
   });
   posts.forEach((post) => {
-    post.setDataValue("user", post.User);
-    post.setDataValue("comments", post.Comments);
-    if (post.Comments) {
-      post.setDataValue("commentsCount", post.Comments.length);
-      post.getDataValue("comments").forEach((comment) => {
-        comment.setDataValue("user", comment.User);
-      });
-    } else {
-      post.setDataValue("commentsCount", 0);
-    }
+    post.setDataValue("commentsCount", post.Comments.length);
     post.setDataValue("files", JSON.parse(post.files));
     if (post.User.id === req.user.id) {
       post.setDataValue("isMine", true);
@@ -129,7 +120,6 @@ exports.getPosts = async (req, res, next) => {
 exports.uploadPost = async (req, res, next) => {
   const { caption, files, tags } = req.body;
   try {
-    console.log(req.body);
     let post = await Post.create({
       caption,
       files: JSON.stringify(files),
@@ -155,12 +145,9 @@ exports.uploadPost = async (req, res, next) => {
       },
     });
     post.setDataValue("files", JSON.parse(post.files));
-    post.setDataValue("user", post.User);
     post.setDataValue("isMine", true);
     post.setDataValue("likesCount", 0);
-    post.setDataValue("comments", []);
     post.setDataValue("commentsCount", 0);
-    console.log(post);
     res.status(201).json({ success: true, data: post });
   } catch (err) {
     next(err);
@@ -194,27 +181,18 @@ exports.getDetailPost = async (req, res, next) => {
       },
     ],
   });
+  // process data for frontend
   post.setDataValue("files", JSON.parse(post.files));
-  post.setDataValue("user", post.User);
   if (post.User.id === req.user.id) {
     post.setDataValue("isMine", true);
   }
-  post.setDataValue("comments", post.Comments);
-  if (post.Comments) {
-    post.setDataValue("commentsCount", post.Comments.length);
-    post.getDataValue("comments").forEach((comment) => {
-      comment.setDataValue("user", comment.User);
-    });
-  } else {
-    post.setDataValue("commentsCount", 0);
-  }
+  post.setDataValue("commentsCount", post.Comments.length);
   post.LikeUsers.forEach((user) => {
     if (user.id === req.user.id) {
       post.setDataValue("isLiked", true);
     }
   });
   post.setDataValue("likesCount", post.LikeUsers.length);
-
   res.status(200).json({ success: true, data: post });
 };
 

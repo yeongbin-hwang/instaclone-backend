@@ -267,22 +267,22 @@ const ProfileHeader = ({ profile }) => {
               {profile?.followingCount} following
             </span>
 
-            {showFollowersModal && profile?.followers.length > 0 && (
+            {showFollowersModal && profile?.Followers.length > 0 && (
               <Modal>
                 <ModalContent
                   loggedInUser={user}
-                  users={profile?.followers}
+                  users={profile?.Followers}
                   title="Followers"
                   closeModal={closeModal}
                 />
               </Modal>
             )}
 
-            {showFollowingModal && profile?.following.length > 0 && (
+            {showFollowingModal && profile?.Followings.length > 0 && (
               <Modal>
                 <ModalContent
                   loggedInUser={user}
-                  users={profile?.following}
+                  users={profile?.Followings}
                   title="Following"
                   closeModal={closeModal}
                 />
@@ -315,22 +315,22 @@ const ProfileHeader = ({ profile }) => {
             {profile?.followingCount} following
           </span>
 
-          {showFollowersModal && profile?.followers.length > 0 && (
+          {showFollowersModal && profile?.Followers.length > 0 && (
             <Modal>
               <ModalContent
                 loggedInUser={user}
-                users={profile?.followers}
+                users={profile?.Followers}
                 title="Followers"
                 closeModal={closeModal}
               />
             </Modal>
           )}
 
-          {showFollowingModal && profile?.following.length > 0 && (
+          {showFollowingModal && profile?.Followings.length > 0 && (
             <Modal>
               <ModalContent
                 loggedInUser={user}
-                users={profile?.following}
+                users={profile?.Followings}
                 title="Following"
                 closeModal={closeModal}
               />
